@@ -236,16 +236,16 @@ str_const8:
 	.word	5
 	.word	String_dispTab
 	.word	int_const1
-	.ascii	"b"
+	.ascii	"d"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const7:
 	.word	5
-	.word	13
+	.word	5
 	.word	String_dispTab
-	.word	int_const13
-	.ascii	"other command not implented yet.\n"
+	.word	int_const1
+	.ascii	"e"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -263,16 +263,16 @@ str_const5:
 	.word	5
 	.word	String_dispTab
 	.word	int_const1
-	.ascii	"+"
+	.ascii	">"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const4:
 	.word	5
-	.word	5
+	.word	6
 	.word	String_dispTab
-	.word	int_const1
-	.ascii	"s"
+	.word	int_const6
+	.ascii	"Stop!\n"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -281,7 +281,7 @@ str_const3:
 	.word	5
 	.word	String_dispTab
 	.word	int_const1
-	.ascii	">"
+	.ascii	"\n"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -290,16 +290,16 @@ str_const2:
 	.word	5
 	.word	String_dispTab
 	.word	int_const1
-	.ascii	"\n"
+	.ascii	"s"
 	.byte	0	
 	.align	2
 	.word	-1
 str_const1:
 	.word	5
-	.word	6
+	.word	5
 	.word	String_dispTab
-	.word	int_const6
-	.ascii	"Stop!\n"
+	.word	int_const1
+	.ascii	"+"
 	.byte	0	
 	.align	2
 	.word	-1
@@ -311,12 +311,6 @@ str_const0:
 	.ascii	"stack.cl"
 	.byte	0	
 	.align	2
-	.word	-1
-int_const13:
-	.word	3
-	.word	4
-	.word	Int_dispTab
-	.word	33
 	.word	-1
 int_const12:
 	.word	3
@@ -464,7 +458,9 @@ StackCommand_dispTab:
 	.word	StackCommand.get_stack_top
 	.word	StackCommand.push_command
 	.word	StackCommand.pop_command
-	.word	StackCommand.push_integer
+	.word	StackCommand.execute_plus
+	.word	StackCommand.execute_s
+	.word	StackCommand.evalute_stack_top
 	.word	StackCommand.display_stack
 	.word	StackCommand.stop
 StackNode_dispTab:
@@ -524,8 +520,9 @@ A2I_protObj:
 	.word	-1
 StackCommand_protObj:
 	.word	8
-	.word	4
+	.word	5
 	.word	StackCommand_dispTab
+	.word	0
 	.word	0
 	.word	-1
 StackNode_protObj:
@@ -1145,7 +1142,7 @@ label76:
 	lw	$t1 20($t1)
 	jalr		$t1
 	move	$s1 $a0
-	la	$t2 str_const5
+	la	$t2 str_const1
 	move	$t1 $s1
 	la	$a0 bool_const1
 	beq	$t1 $t2 label75
@@ -1536,7 +1533,7 @@ label104:
 	jal	StackNode_init
 	bne	$a0 $zero label105
 	la	$a0 str_const0
-	li	$t1 73
+	li	$t1 77
 	jal	_dispatch_abort
 label105:
 	lw	$t1 8($a0)
@@ -1545,27 +1542,26 @@ label105:
 	sw	$a0 12($s0)
 	b	label103
 label102:
-	move	$s1 $zero
 	lw	$a0 16($fp)
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	lw	$a0 12($s0)
 	bne	$a0 $zero label106
 	la	$a0 str_const0
-	li	$t1 77
+	li	$t1 81
 	jal	_dispatch_abort
 label106:
 	lw	$t1 8($a0)
 	lw	$t1 16($t1)
 	jalr		$t1
-	move	$s1 $a0
+	sw	$a0 16($s0)
 	lw	$a0 12($s0)
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
-	move	$a0 $s1
+	lw	$a0 16($s0)
 	bne	$a0 $zero label107
 	la	$a0 str_const0
-	li	$t1 78
+	li	$t1 82
 	jal	_dispatch_abort
 label107:
 	lw	$t1 8($a0)
@@ -1589,25 +1585,37 @@ StackCommand.pop_command:
 	sw	$s1 0($fp)
 	la	$s1 str_const19
 	lw	$a0 12($s0)
-	bne	$a0 $zero label108
-	la	$a0 str_const0
-	li	$t1 86
-	jal	_dispatch_abort
+	move	$t1 $a0
+	la	$a0 bool_const1
+	beqz	$t1 label110
+	la	$a0 bool_const0
+label110:
+	lw	$t1 12($a0)
+	beqz	$t1 label108
+	move	$a0 $s1
+	b	label109
 label108:
+	lw	$a0 12($s0)
+	bne	$a0 $zero label111
+	la	$a0 str_const0
+	li	$t1 94
+	jal	_dispatch_abort
+label111:
 	lw	$t1 8($a0)
 	lw	$t1 24($t1)
 	jalr		$t1
 	move	$s1 $a0
 	lw	$a0 12($s0)
-	bne	$a0 $zero label109
+	bne	$a0 $zero label112
 	la	$a0 str_const0
-	li	$t1 87
+	li	$t1 95
 	jal	_dispatch_abort
-label109:
+label112:
 	lw	$t1 8($a0)
 	lw	$t1 28($t1)
 	jalr		$t1
 	sw	$a0 12($s0)
+label109:
 	move	$a0 $s1
 	lw	$s1 0($fp)
 	lw	$fp 16($sp)
@@ -1615,31 +1623,314 @@ label109:
 	lw	$ra 8($sp)
 	addiu	$sp $sp 16
 	jr	$ra	
-StackCommand.push_integer:
-	addiu	$sp $sp -12
-	sw	$fp 12($sp)
-	sw	$s0 8($sp)
-	sw	$ra 4($sp)
+StackCommand.execute_plus:
+	addiu	$sp $sp -28
+	sw	$fp 28($sp)
+	sw	$s0 24($sp)
+	sw	$ra 20($sp)
 	addiu	$fp $sp 4
 	move	$s0 $a0
+	sw	$s1 12($fp)
+	sw	$s2 8($fp)
+	sw	$s3 4($fp)
+	sw	$s4 0($fp)
+	la	$s4 str_const19
+	la	$s3 str_const19
+	la	$s2 str_const19
+	move	$a0 $s0
+	bne	$a0 $zero label113
+	la	$a0 str_const0
+	li	$t1 106
+	jal	_dispatch_abort
+label113:
+	lw	$t1 8($a0)
+	lw	$t1 48($t1)
+	jalr		$t1
+	move	$s4 $a0
+	move	$a0 $s0
+	bne	$a0 $zero label114
+	la	$a0 str_const0
+	li	$t1 107
+	jal	_dispatch_abort
+label114:
+	lw	$t1 8($a0)
+	lw	$t1 48($t1)
+	jalr		$t1
+	move	$s3 $a0
+	sw	$s4 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s0
+	bne	$a0 $zero label115
+	la	$a0 str_const0
+	li	$t1 108
+	jal	_dispatch_abort
+label115:
+	lw	$t1 8($a0)
+	lw	$t1 20($t1)
+	jalr		$t1
+	move	$s1 $a0
+	sw	$s3 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s0
+	bne	$a0 $zero label116
+	la	$a0 str_const0
+	li	$t1 108
+	jal	_dispatch_abort
+label116:
+	lw	$t1 8($a0)
+	lw	$t1 20($t1)
+	jalr		$t1
+	jal	Object.copy
+	lw	$t2 12($a0)
+	lw	$t1 12($s1)
+	add	$t1 $t1 $t2
+	sw	$t1 12($a0)
+	sw	$a0 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s0
+	bne	$a0 $zero label117
+	la	$a0 str_const0
+	li	$t1 108
+	jal	_dispatch_abort
+label117:
+	lw	$t1 8($a0)
+	lw	$t1 28($t1)
+	jalr		$t1
+	move	$s2 $a0
+	sw	$s2 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s0
+	bne	$a0 $zero label118
+	la	$a0 str_const0
+	li	$t1 109
+	jal	_dispatch_abort
+label118:
+	lw	$t1 8($a0)
+	lw	$t1 44($t1)
+	jalr		$t1
+	sw	$a0 12($s0)
+	lw	$s1 12($fp)
+	lw	$s2 8($fp)
+	lw	$s3 4($fp)
+	lw	$s4 0($fp)
+	lw	$fp 28($sp)
+	lw	$s0 24($sp)
+	lw	$ra 20($sp)
+	addiu	$sp $sp 28
+	jr	$ra	
+StackCommand.execute_s:
+	addiu	$sp $sp -20
+	sw	$fp 20($sp)
+	sw	$s0 16($sp)
+	sw	$ra 12($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	sw	$s1 4($fp)
+	sw	$s2 0($fp)
+	la	$s2 str_const19
+	la	$s1 str_const19
+	move	$a0 $s0
+	bne	$a0 $zero label119
+	la	$a0 str_const0
+	li	$t1 116
+	jal	_dispatch_abort
+label119:
+	lw	$t1 8($a0)
+	lw	$t1 48($t1)
+	jalr		$t1
+	move	$s2 $a0
+	move	$a0 $s0
+	bne	$a0 $zero label120
+	la	$a0 str_const0
+	li	$t1 117
+	jal	_dispatch_abort
+label120:
+	lw	$t1 8($a0)
+	lw	$t1 48($t1)
+	jalr		$t1
+	move	$s1 $a0
+	sw	$s1 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s0
+	bne	$a0 $zero label121
+	la	$a0 str_const0
+	li	$t1 118
+	jal	_dispatch_abort
+label121:
+	lw	$t1 8($a0)
+	lw	$t1 44($t1)
+	jalr		$t1
+	sw	$a0 12($s0)
+	sw	$s2 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s0
+	bne	$a0 $zero label122
+	la	$a0 str_const0
+	li	$t1 119
+	jal	_dispatch_abort
+label122:
+	lw	$t1 8($a0)
+	lw	$t1 44($t1)
+	jalr		$t1
+	sw	$a0 12($s0)
+	lw	$s1 4($fp)
+	lw	$s2 0($fp)
+	lw	$fp 20($sp)
+	lw	$s0 16($sp)
+	lw	$ra 12($sp)
+	addiu	$sp $sp 20
+	jr	$ra	
+StackCommand.evalute_stack_top:
+	addiu	$sp $sp -20
+	sw	$fp 20($sp)
+	sw	$s0 16($sp)
+	sw	$ra 12($sp)
+	addiu	$fp $sp 4
+	move	$s0 $a0
+	sw	$s1 4($fp)
+	sw	$s2 0($fp)
+	la	$s2 str_const19
+	move	$a0 $s0
+	bne	$a0 $zero label123
+	la	$a0 str_const0
+	li	$t1 126
+	jal	_dispatch_abort
+label123:
+	lw	$t1 8($a0)
+	lw	$t1 48($t1)
+	jalr		$t1
+	move	$s2 $a0
+	move	$s1 $s2
+	la	$t2 str_const1
+	move	$t1 $s1
+	la	$a0 bool_const1
+	beq	$t1 $t2 label126
+	la	$a1 bool_const0
+	jal	equality_test
+label126:
+	lw	$t1 12($a0)
+	beqz	$t1 label124
+	move	$a0 $s0
+	bne	$a0 $zero label127
+	la	$a0 str_const0
+	li	$t1 128
+	jal	_dispatch_abort
+label127:
+	lw	$t1 8($a0)
+	lw	$t1 52($t1)
+	jalr		$t1
+	sw	$a0 12($s0)
+	b	label125
+label124:
+	move	$s1 $s2
+	la	$t2 str_const2
+	move	$t1 $s1
+	la	$a0 bool_const1
+	beq	$t1 $t2 label130
+	la	$a1 bool_const0
+	jal	equality_test
+label130:
+	lw	$t1 12($a0)
+	beqz	$t1 label128
+	move	$a0 $s0
+	bne	$a0 $zero label131
+	la	$a0 str_const0
+	li	$t1 130
+	jal	_dispatch_abort
+label131:
+	lw	$t1 8($a0)
+	lw	$t1 56($t1)
+	jalr		$t1
+	sw	$a0 12($s0)
+	b	label129
+label128:
 	lw	$a0 12($s0)
-	lw	$fp 12($sp)
-	lw	$s0 8($sp)
-	lw	$ra 4($sp)
+label129:
+label125:
+	lw	$s1 4($fp)
+	lw	$s2 0($fp)
+	lw	$fp 20($sp)
+	lw	$s0 16($sp)
+	lw	$ra 12($sp)
 	addiu	$sp $sp 20
 	jr	$ra	
 StackCommand.display_stack:
-	addiu	$sp $sp -12
-	sw	$fp 12($sp)
-	sw	$s0 8($sp)
-	sw	$ra 4($sp)
+	addiu	$sp $sp -20
+	sw	$fp 20($sp)
+	sw	$s0 16($sp)
+	sw	$ra 12($sp)
 	addiu	$fp $sp 4
 	move	$s0 $a0
-	lw	$a0 12($s0)
-	lw	$fp 12($sp)
-	lw	$s0 8($sp)
-	lw	$ra 4($sp)
-	addiu	$sp $sp 12
+	sw	$s1 4($fp)
+	sw	$s2 0($fp)
+	lw	$s2 20($fp)
+	la	$a0 IO_protObj
+	jal	Object.copy
+	jal	IO_init
+	move	$s1 $a0
+label132:
+	la	$a0 bool_const1
+	beqz	$s2 label135
+	la	$a0 bool_const0
+label135:
+	lw	$t1 12($a0)
+	la	$a0 bool_const1
+	beqz	$t1 label134
+	la	$a0 bool_const0
+label134:
+	lw	$t1 12($a0)
+	beq	$t1 $zero label133
+	move	$a0 $s2
+	bne	$a0 $zero label136
+	la	$a0 str_const0
+	li	$t1 142
+	jal	_dispatch_abort
+label136:
+	lw	$t1 8($a0)
+	lw	$t1 24($t1)
+	jalr		$t1
+	sw	$a0 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s1
+	bne	$a0 $zero label137
+	la	$a0 str_const0
+	li	$t1 142
+	jal	_dispatch_abort
+label137:
+	lw	$t1 8($a0)
+	lw	$t1 12($t1)
+	jalr		$t1
+	la	$a0 str_const3
+	sw	$a0 0($sp)
+	addiu	$sp $sp -4
+	move	$a0 $s1
+	bne	$a0 $zero label138
+	la	$a0 str_const0
+	li	$t1 143
+	jal	_dispatch_abort
+label138:
+	lw	$t1 8($a0)
+	lw	$t1 12($t1)
+	jalr		$t1
+	move	$a0 $s2
+	bne	$a0 $zero label139
+	la	$a0 str_const0
+	li	$t1 144
+	jal	_dispatch_abort
+label139:
+	lw	$t1 8($a0)
+	lw	$t1 28($t1)
+	jalr		$t1
+	move	$s2 $a0
+	b	label132
+label133:
+	move	$a0 $zero
+	lw	$s1 4($fp)
+	lw	$s2 0($fp)
+	lw	$fp 20($sp)
+	lw	$s0 16($sp)
+	lw	$ra 12($sp)
+	addiu	$sp $sp 24
 	jr	$ra	
 StackCommand.stop:
 	addiu	$sp $sp -16
@@ -1653,24 +1944,24 @@ StackCommand.stop:
 	jal	Object.copy
 	jal	IO_init
 	move	$s1 $a0
-	la	$a0 str_const1
+	la	$a0 str_const4
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	move	$a0 $s1
-	bne	$a0 $zero label110
+	bne	$a0 $zero label140
 	la	$a0 str_const0
-	li	$t1 109
+	li	$t1 153
 	jal	_dispatch_abort
-label110:
+label140:
 	lw	$t1 8($a0)
 	lw	$t1 12($t1)
 	jalr		$t1
 	move	$a0 $s0
-	bne	$a0 $zero label111
+	bne	$a0 $zero label141
 	la	$a0 str_const0
-	li	$t1 110
+	li	$t1 154
 	jal	_dispatch_abort
-label111:
+label141:
 	lw	$t1 8($a0)
 	lw	$t1 0($t1)
 	jalr		$t1
@@ -1715,11 +2006,11 @@ StackNode.put_new_cmd:
 	la	$a0 StackNode_protObj
 	jal	Object.copy
 	jal	StackNode_init
-	bne	$a0 $zero label112
+	bne	$a0 $zero label142
 	la	$a0 str_const0
 	li	$t1 34
 	jal	_dispatch_abort
-label112:
+label142:
 	lw	$t1 8($a0)
 	lw	$t1 12($t1)
 	jalr		$t1
@@ -1740,6 +2031,7 @@ StackNode.set_next:
 	move	$s0 $a0
 	lw	$a0 12($fp)
 	sw	$a0 16($s0)
+	move	$a0 $s0
 	lw	$fp 12($sp)
 	lw	$s0 8($sp)
 	lw	$ra 4($sp)
@@ -1778,15 +2070,15 @@ Main.new_line:
 	sw	$ra 4($sp)
 	addiu	$fp $sp 4
 	move	$s0 $a0
-	la	$a0 str_const2
+	la	$a0 str_const3
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	move	$a0 $s0
-	bne	$a0 $zero label113
+	bne	$a0 $zero label143
 	la	$a0 str_const0
-	li	$t1 121
+	li	$t1 165
 	jal	_dispatch_abort
-label113:
+label143:
 	lw	$t1 8($a0)
 	lw	$t1 12($t1)
 	jalr		$t1
@@ -1802,24 +2094,24 @@ Main.prompt:
 	sw	$ra 4($sp)
 	addiu	$fp $sp 4
 	move	$s0 $a0
-	la	$a0 str_const3
+	la	$a0 str_const5
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	move	$a0 $s0
-	bne	$a0 $zero label114
+	bne	$a0 $zero label144
 	la	$a0 str_const0
-	li	$t1 126
+	li	$t1 170
 	jal	_dispatch_abort
-label114:
+label144:
 	lw	$t1 8($a0)
 	lw	$t1 12($t1)
 	jalr		$t1
 	move	$a0 $s0
-	bne	$a0 $zero label115
+	bne	$a0 $zero label145
 	la	$a0 str_const0
-	li	$t1 127
+	li	$t1 171
 	jal	_dispatch_abort
-label115:
+label145:
 	lw	$t1 8($a0)
 	lw	$t1 20($t1)
 	jalr		$t1
@@ -1837,91 +2129,140 @@ Main.parse_command:
 	move	$s0 $a0
 	sw	$s1 0($fp)
 	lw	$s1 16($fp)
-	la	$t2 str_const4
+	la	$t2 str_const2
 	move	$t1 $s1
 	la	$a0 bool_const1
-	beq	$t1 $t2 label118
+	beq	$t1 $t2 label148
 	la	$a1 bool_const0
 	jal	equality_test
-label118:
+label148:
 	lw	$t1 12($a0)
-	beqz	$t1 label116
+	beqz	$t1 label146
 	lw	$a0 16($fp)
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	lw	$a0 12($s0)
-	bne	$a0 $zero label119
+	bne	$a0 $zero label149
 	la	$a0 str_const0
-	li	$t1 133
+	li	$t1 177
 	jal	_dispatch_abort
-label119:
+label149:
 	lw	$t1 8($a0)
 	lw	$t1 44($t1)
 	jalr		$t1
 	sw	$a0 16($s0)
-	b	label117
-label116:
+	b	label147
+label146:
 	lw	$s1 16($fp)
-	la	$t2 str_const5
+	la	$t2 str_const1
 	move	$t1 $s1
 	la	$a0 bool_const1
-	beq	$t1 $t2 label122
+	beq	$t1 $t2 label152
 	la	$a1 bool_const0
 	jal	equality_test
-label122:
+label152:
 	lw	$t1 12($a0)
-	beqz	$t1 label120
+	beqz	$t1 label150
 	lw	$a0 16($fp)
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
 	lw	$a0 12($s0)
-	bne	$a0 $zero label123
+	bne	$a0 $zero label153
 	la	$a0 str_const0
-	li	$t1 135
+	li	$t1 179
 	jal	_dispatch_abort
-label123:
+label153:
 	lw	$t1 8($a0)
 	lw	$t1 44($t1)
 	jalr		$t1
 	sw	$a0 16($s0)
-	b	label121
-label120:
+	b	label151
+label150:
 	lw	$s1 16($fp)
 	la	$t2 str_const6
 	move	$t1 $s1
 	la	$a0 bool_const1
-	beq	$t1 $t2 label126
+	beq	$t1 $t2 label156
 	la	$a1 bool_const0
 	jal	equality_test
-label126:
+label156:
 	lw	$t1 12($a0)
-	beqz	$t1 label124
+	beqz	$t1 label154
 	lw	$a0 12($s0)
-	bne	$a0 $zero label127
+	bne	$a0 $zero label157
 	la	$a0 str_const0
-	li	$t1 137
+	li	$t1 181
 	jal	_dispatch_abort
-label127:
+label157:
+	lw	$t1 8($a0)
+	lw	$t1 68($t1)
+	jalr		$t1
+	b	label155
+label154:
+	lw	$s1 16($fp)
+	la	$t2 str_const7
+	move	$t1 $s1
+	la	$a0 bool_const1
+	beq	$t1 $t2 label160
+	la	$a1 bool_const0
+	jal	equality_test
+label160:
+	lw	$t1 12($a0)
+	beqz	$t1 label158
+	lw	$a0 12($s0)
+	bne	$a0 $zero label161
+	la	$a0 str_const0
+	li	$t1 183
+	jal	_dispatch_abort
+label161:
 	lw	$t1 8($a0)
 	lw	$t1 60($t1)
 	jalr		$t1
-	b	label125
-label124:
-	la	$a0 str_const7
+	sw	$a0 16($s0)
+	b	label159
+label158:
+	lw	$s1 16($fp)
+	la	$t2 str_const8
+	move	$t1 $s1
+	la	$a0 bool_const1
+	beq	$t1 $t2 label164
+	la	$a1 bool_const0
+	jal	equality_test
+label164:
+	lw	$t1 12($a0)
+	beqz	$t1 label162
+	lw	$a0 16($s0)
 	sw	$a0 0($sp)
 	addiu	$sp $sp -4
-	move	$a0 $s0
-	bne	$a0 $zero label128
+	lw	$a0 12($s0)
+	bne	$a0 $zero label165
 	la	$a0 str_const0
-	li	$t1 138
+	li	$t1 185
 	jal	_dispatch_abort
-label128:
+label165:
 	lw	$t1 8($a0)
-	lw	$t1 12($t1)
+	lw	$t1 64($t1)
 	jalr		$t1
-label125:
-label121:
-label117:
+	b	label163
+label162:
+	lw	$a0 16($fp)
+	sw	$a0 0($sp)
+	addiu	$sp $sp -4
+	lw	$a0 12($s0)
+	bne	$a0 $zero label166
+	la	$a0 str_const0
+	li	$t1 186
+	jal	_dispatch_abort
+label166:
+	lw	$t1 8($a0)
+	lw	$t1 44($t1)
+	jalr		$t1
+	sw	$a0 16($s0)
+label163:
+label159:
+label155:
+label151:
+label147:
 	lw	$s1 0($fp)
 	lw	$fp 16($sp)
 	lw	$s0 12($sp)
@@ -1929,69 +2270,49 @@ label117:
 	addiu	$sp $sp 20
 	jr	$ra	
 Main.main:
-	addiu	$sp $sp -20
-	sw	$fp 20($sp)
-	sw	$s0 16($sp)
-	sw	$ra 12($sp)
+	addiu	$sp $sp -16
+	sw	$fp 16($sp)
+	sw	$s0 12($sp)
+	sw	$ra 8($sp)
 	addiu	$fp $sp 4
 	move	$s0 $a0
-	sw	$s1 4($fp)
-	sw	$s2 0($fp)
-	la	$s2 str_const19
-	move	$s1 $zero
-	la	$a0 str_const8
-	sw	$a0 0($sp)
-	addiu	$sp $sp -4
-	sw	$s1 0($sp)
-	addiu	$sp $sp -4
-	la	$a0 StackNode_protObj
-	jal	Object.copy
-	jal	StackNode_init
-	bne	$a0 $zero label129
-	la	$a0 str_const0
-	li	$t1 145
-	jal	_dispatch_abort
-label129:
-	lw	$t1 8($a0)
-	lw	$t1 12($t1)
-	jalr		$t1
-	sw	$a0 16($s0)
+	sw	$s1 0($fp)
+	la	$s1 str_const19
 	la	$a0 StackCommand_protObj
 	jal	Object.copy
 	jal	StackCommand_init
 	sw	$a0 12($s0)
-label130:
+label167:
 	la	$a0 bool_const1
 	lw	$t1 12($a0)
-	beq	$t1 $zero label131
+	beq	$t1 $zero label168
 	move	$a0 $s0
-	bne	$a0 $zero label132
+	bne	$a0 $zero label169
 	la	$a0 str_const0
-	li	$t1 149
+	li	$t1 196
 	jal	_dispatch_abort
-label132:
+label169:
 	lw	$t1 8($a0)
 	lw	$t1 32($t1)
 	jalr		$t1
-	move	$s2 $a0
-	sw	$s2 0($sp)
+	move	$s1 $a0
+	sw	$s1 0($sp)
 	addiu	$sp $sp -4
 	move	$a0 $s0
-	bne	$a0 $zero label133
+	bne	$a0 $zero label170
 	la	$a0 str_const0
-	li	$t1 150
+	li	$t1 197
 	jal	_dispatch_abort
-label133:
+label170:
 	lw	$t1 8($a0)
 	lw	$t1 36($t1)
 	jalr		$t1
-	b	label130
-label131:
+	b	label167
+label168:
 	move	$a0 $zero
-	lw	$s1 4($fp)
-	lw	$s2 0($fp)
-	lw	$fp 20($sp)
-	lw	$s0 16($sp)
-	lw	$ra 12($sp)
-	addiu	$sp $sp 20
+	lw	$s1 0($fp)
+	lw	$fp 16($sp)
+	lw	$s0 12($sp)
+	lw	$ra 8($sp)
+	addiu	$sp $sp 16
 	jr	$ra	

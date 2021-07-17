@@ -36,7 +36,10 @@ class StackNode {
       }
    };
    set_next(nxt : StackNode) : StackNode {
-      nextNode <- nxt
+      {
+         nextNode <- nxt;
+         self;
+      }
    };
 
    (* pop entry from stack
@@ -55,6 +58,7 @@ class StackNode {
  *)
 class StackCommand inherits A2I {
    topSTK : StackNode;
+   tmpNode : StackNode;
 
    (* operate cmd stack *)
    set_stack_top(sTop: StackNode) : StackNode {
@@ -65,7 +69,7 @@ class StackCommand inherits A2I {
    };
 
    (* push command 
-    * push "+" and "s" use this function
+    * push "+","s" and integer use this function
     *)
    push_command(cmd_str : String) : StackNode {
       if (isvoid topSTK) then
@@ -73,7 +77,7 @@ class StackCommand inherits A2I {
             topSTK <- (new StackNode).init(cmd_str, nil);
          }   
       else
-         let tmpNode : StackNode in {
+         {
             tmpNode <- topSTK.put_new_cmd(cmd_str);
             topSTK <- tmpNode.set_next(topSTK);
          }
@@ -83,24 +87,64 @@ class StackCommand inherits A2I {
    (* pop command *)
    pop_command() : String {
       let ret_str : String in {
-         ret_str <- topSTK.get_cmd();
-         topSTK <- topSTK.get_next();
+         if(isvoid topSTK) then{
+            ret_str;
+         }
+         else {
+            ret_str <- topSTK.get_cmd();
+            topSTK <- topSTK.get_next();
+         }fi;
          ret_str;
       }
    };
 
-   (* integer - push integer into stack *)
-   push_integer(str : String, sTop : StackNode) : StackNode {
-      (* TODO *)
-      topSTK
+   (* execute '+' *)
+   execute_plus() : StackNode {
+      let num1 : String,
+          num2 : String,
+          sum : String in {
+             num1 <- pop_command();
+             num2 <- pop_command();
+             sum <- i2a(a2i(num1) + a2i(num2));
+             topSTK <- push_command(sum);
+          }
+   };
+
+   execute_s() : StackNode {
+      let num1 : String,
+          num2 : String in {
+             num1 <- pop_command();
+             num2 <- pop_command();
+             topSTK <- push_command(num2);
+             topSTK <- push_command(num1);
+          }
    };
 
    (* 'e' - evaluate the top of stack *)
+   evalute_stack_top() : StackNode {
+      let top_str : String in {
+         top_str <- pop_command();
+         if (top_str = "+") 
+         then topSTK <- execute_plus()
+         else if (top_str = "s")
+         then topSTK <- execute_s()
+         else topSTK
+         fi fi;
+      }
+   };
 
    (* 'd' - display contents of stack *)
-   display_stack() : StackNode {
+   display_stack(sTop : StackNode) : Object {
       (* TODO *)
-      topSTK
+      let node : StackNode <- sTop,
+         io : IO <- new IO in {
+         while (not isvoid node) loop {
+            io.out_string(node.get_cmd());
+            io.out_string("\n");
+            node <- node.get_next();
+         }
+         pool;
+      }
    };
 
    (* 'x' - stop *)
@@ -135,14 +179,17 @@ class Main inherits IO {
       then stackTop <- stackCmd.push_command(cmd_str)
       else if (cmd_str = "x")
       then stackCmd.stop()
-      else out_string("other command not implented yet.\n")
-      fi fi fi
+      else if (cmd_str = "e")
+      then stackTop <- stackCmd.evalute_stack_top()
+      else if (cmd_str = "d")
+      then stackCmd.display_stack(stackTop)
+      else stackTop <- stackCmd.push_command(cmd_str)
+      fi fi fi fi fi
    };
 
    main() : Object {
-      let str_in : String, nil : StackNode in
+      let str_in : String in
       {
-         stackTop <- (new StackNode).init("b", nil);
          stackCmd <- new StackCommand;
          while true loop
             {
