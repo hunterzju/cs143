@@ -106,3 +106,87 @@ Instructions
 Write-up for PA2
 ----------------
 
+# 项目2:词法分析（lexer） 
+用flex实现cool语言词法分析（lexer）工具；
+source_code - (lexer) -> tokens；
+
+flex文件结构：
+```
+%{
+Declarations
+%}
+Definitions
+%%
+Rules
+%%
+User subroutines
+```
+
+根据cool语言规则，需要通过flex正则表达式识别出关键字，变量，字符串，常数，布尔值等内容，还要完成转义字符，非法字符等处理。各部分实现参见cool-manual.pdf中section10.
+## 转义字符
+空格\t\v\r\f\n等
+\t\v\r\f等字符不做处理；
+\n换行
+
+## 非法字符
+包括：[]'>
+返回错误信息
+
+## 注释
+多行注释：包含在"(**)"之间，需要加入start condition来判断非法注释。
+多行非法注释：
+1. 缺少结束标示（到EOF还没有结束标示符）
+2. 缺少开始标示符
+单行注释： -- 到换行符之前的内容
+
+## 字符串
+双引号之间的内容被解析为字符串；
+需要解析字符串中的转义字符:\b, \t, \n, \f.
+
+## 整型
+由数字构成的组合。
+
+## 关键字
+cool语言关键字包括：
+```
+class, else, false, fi, if, in, inherits, isvoid, let, loop, pool, then, while,
+case, esac, new, of, not, true
+```
+其中true和false必须首字母小写
+
+## 标示符
+字母开头，可包含字母、数字和下划线；    
+类型标示符：首字母大写；     
+对象标示符：首字母小写。
+
+## 多字符符号
+多个字符作为一个运算符：
+<-, <=, =>
+
+
+## 附录 
+c/c++转义字符(string escape)
+```
+  \a 响铃(BEL) 007 
+  \b 退格(BS) 008 
+  \f 换页(FF) 012 
+  \n 换行(LF) 010 
+  \r 回车(CR) 013 
+  \t 水平制表(HT) 009 
+  \v 垂直制表(VT) 011 
+  \\ 反斜杠 092 
+  \? 问号字符 063 
+  \' 单引号字符 039 
+  \" 双引号字符 034 
+  \0 空字符(NULL) 000 
+  \ddd 任意字符 三位八进制 
+  \xhh 任意字符 二位十六进制 
+```
+
+flex中start condition里%x和%s的区别
+```
+  The former (%s) declares inclusive start
+
+  the latter (%x) declares exclusive start
+```
+

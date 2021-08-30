@@ -5,6 +5,7 @@
 class CellularAutomaton inherits IO {
     population_map : String;
    
+    -- init function
     init(map : String) : SELF_TYPE {
         {
             population_map <- map;
@@ -14,7 +15,7 @@ class CellularAutomaton inherits IO {
    
     print() : SELF_TYPE {
         {
-            out_string(population_map.concat("\n"));
+            out_string(population_map.concat("\b\f\t\a\n"));
             self;
         }
     };
@@ -80,7 +81,8 @@ class Main {
    
     main() : SELF_TYPE {
         {
-            cells <- (new CellularAutomaton).init("         X         ");
+            cells <- (new CellularAutomaton).init("         X      \
+                       ");
             cells.print();
             (let countdown : Int <- 20 in
                 while countdown > 0 loop
@@ -90,7 +92,7 @@ class Main {
                         countdown <- countdown - 1;
                     
                 pool
-            );  (* end let countdown
+            );  (* end let countdown *)
             self;
         }
     };
