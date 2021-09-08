@@ -2,7 +2,8 @@
 ASSN = 3
 CLASS= cs143
 CLASSDIR= ../..
-LIB=  -lfl 
+# LIB=  -lfl 
+LIB= 
 AR= gar
 ARCHIVE_NEW= -cr
 RANLIB= gar -qs
