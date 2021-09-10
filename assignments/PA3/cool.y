@@ -185,6 +185,7 @@
     stringtable.add_string(curr_filename)); }
     | CLASS TYPEID INHERITS TYPEID '{' dummy_feature_list '}' ';'
     { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
+    | error ';' { yyerrok; }
     ;
     
     /* Feature list may be empty, but no empty features in list. */
